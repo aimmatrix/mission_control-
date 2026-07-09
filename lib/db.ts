@@ -9,8 +9,13 @@ export function supabaseConfigured(): boolean {
 }
 
 // In-memory fallback (fine locally; on Vercel, Supabase env is set).
-const memScores = new Map<string, RiskScore>();
-const memAudit: AuditEntry[] = [];
+// Stored on globalThis so every route bundle shares one store in dev.
+const g = globalThis as unknown as {
+  __mcScores?: Map<string, RiskScore>;
+  __mcAudit?: AuditEntry[];
+};
+const memScores = (g.__mcScores ??= new Map<string, RiskScore>());
+const memAudit = (g.__mcAudit ??= []);
 
 /** Cached score for (pr_number, head_sha), or null. */
 export async function getCachedScore(
