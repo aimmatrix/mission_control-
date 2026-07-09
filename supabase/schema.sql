@@ -19,3 +19,11 @@ create table if not exists score_cache (
   created_at timestamptz not null default now(),
   primary key (pr_number, head_sha)
 );
+
+create table if not exists problem_tasks (
+  id uuid primary key default gen_random_uuid(),
+  text text not null,
+  status text not null check (status in ('pending','building','done','rejected')),
+  created_at timestamptz not null default now(),
+  approved_at timestamptz
+);
