@@ -18,7 +18,25 @@ const STORAGE_KEY = "mc_tasks_v1";
 const STEP_MS = 1600;
 
 function cursorPrompt(problem: string): string {
-  return `Fix this issue in the Mission Control repo (aimmatrix/mission_control-): ${problem}`;
+  return [
+    "Fix this issue in the Mission Control repo (aimmatrix/mission_control-).",
+    "",
+    "Problem:",
+    problem,
+    "",
+    "Context:",
+    "- Stack: Next.js 14 App Router + Tailwind, deployed on Vercel, Supabase for persistence.",
+    "- Relevant surface: app/ (routes + API), components/ (UI), lib/ (adapters + shared types), fixtures/ (demo data).",
+    "- Design tokens live in tailwind.config.ts (ctrl-bg/panel/line/fg/dim, risk-low/medium/high) — reuse them, don't hardcode colors.",
+    "",
+    "Definition of done:",
+    "- Root cause identified, not just the symptom patched.",
+    "- Minimal, targeted diff — no unrelated refactors.",
+    "- `npm run build` passes (typecheck + lint clean).",
+    "- If the behavior is user-visible, verify it in the running app before calling it done.",
+    "",
+    "Report back with: root cause, the fix, and how you verified it.",
+  ].join("\n");
 }
 
 function cursorDeepLink(problem: string): string {

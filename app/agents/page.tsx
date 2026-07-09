@@ -1,4 +1,5 @@
 import ContributionGraph from "@/components/activity/ContributionGraph";
+import AgentFleet from "@/components/tasks/AgentFleet";
 import ProblemTracker from "@/components/tasks/ProblemTracker";
 
 export default function AgentsPage() {
@@ -11,6 +12,7 @@ export default function AgentsPage() {
         </p>
       </div>
       <ContributionGraph />
+      <AgentFleet />
       <ProblemTracker />
     </main>
   );
