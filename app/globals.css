@@ -4,15 +4,15 @@
 
 :root {
   color-scheme: dark;
-  --ctrl-bg: #0d1117;
-  --ctrl-panel: #161b22;
-  --ctrl-line: #30363d;
+  --ctrl-bg: #0a0f14;
+  --ctrl-panel: #111823;
+  --ctrl-line: #1f2a36;
   --ctrl-fg: #e6edf3;
-  --ctrl-dim: #8b949e;
+  --ctrl-dim: #8b98a5;
   --accent: #58a6ff;
-  --risk-low: #3fb950;
-  --risk-medium: #d29922;
-  --risk-high: #f85149;
+  --risk-low: #34d399;
+  --risk-medium: #fbbf24;
+  --risk-high: #f87171;
 }
 
 html {
@@ -44,9 +44,6 @@ body {
 
 body > header {
   padding-top: env(safe-area-inset-top, 0px);
-  background-color: var(--ctrl-panel) !important;
-  border-color: var(--ctrl-line) !important;
-  backdrop-filter: none !important;
 }
 
 body > header nav a {
@@ -62,10 +59,6 @@ body > header > div > a {
   color: var(--ctrl-fg);
   text-decoration: none;
   font-weight: 600;
-}
-
-body > header > div > a .text-risk-low {
-  display: none;
 }
 
 h1,
@@ -149,24 +142,27 @@ p {
   }
 
   .mc-label-low {
-    border-color: rgb(35 134 54 / 0.4);
-    background-color: rgb(35 134 54 / 0.15);
+    border-color: rgb(52 211 153 / 0.4);
+    background-color: rgb(52 211 153 / 0.15);
     color: var(--risk-low);
   }
 
   .mc-label-medium {
-    border-color: rgb(158 106 3 / 0.4);
-    background-color: rgb(158 106 3 / 0.15);
+    border-color: rgb(251 191 36 / 0.4);
+    background-color: rgb(251 191 36 / 0.15);
     color: var(--risk-medium);
   }
 
   .mc-label-high {
-    border-color: rgb(218 54 51 / 0.4);
-    background-color: rgb(218 54 51 / 0.15);
+    border-color: rgb(248 113 113 / 0.4);
+    background-color: rgb(248 113 113 / 0.15);
     color: var(--risk-high);
   }
 
-  .mc-btn {
+  .mc-btn,
+  .mc-btn-primary,
+  .mc-btn-secondary,
+  .mc-btn-danger {
     display: inline-flex;
     min-height: 2.75rem;
     align-items: center;
@@ -179,19 +175,22 @@ p {
       color 0.15s ease;
   }
 
-  .mc-btn:disabled {
+  .mc-btn:disabled,
+  .mc-btn-primary:disabled,
+  .mc-btn-secondary:disabled,
+  .mc-btn-danger:disabled {
     cursor: not-allowed;
     opacity: 0.5;
   }
 
   .mc-btn-primary {
-    border: 1px solid #238636;
-    background-color: #238636;
+    border: 1px solid #059669;
+    background-color: #059669;
     color: #ffffff;
   }
 
   .mc-btn-primary:hover:not(:disabled) {
-    background-color: #2ea043;
+    background-color: #10b981;
   }
 
   .mc-btn-secondary {
@@ -206,13 +205,13 @@ p {
   }
 
   .mc-btn-danger {
-    border: 1px solid #da3633;
-    background-color: #da3633;
+    border: 1px solid #dc2626;
+    background-color: #dc2626;
     color: #ffffff;
   }
 
   .mc-btn-danger:hover:not(:disabled) {
-    background-color: #f85149;
+    background-color: #ef4444;
   }
 
   .mc-link {

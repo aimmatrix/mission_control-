@@ -1,15 +1,17 @@
 const FEATURES = [
   {
     title: "Risk-scored diffs",
-    blurb: "Every PR is scored before you review it.",
+    blurb:
+      "An LLM triages every diff for destructive ops, auth surface, and blast radius before you see it.",
   },
   {
     title: "Mobile approvals",
-    blurb: "Approve or reject from your phone with large tap targets.",
+    blurb:
+      "One-tap approve or reject — high-risk PRs demand an extra confirmation, so nothing dangerous merges by accident.",
   },
   {
     title: "Audit trail",
-    blurb: "Every decision is logged with context and timestamps.",
+    blurb: "Every decision lands in an immutable log with score, reasons, and timestamp.",
   },
 ] as const;
 
@@ -23,8 +25,9 @@ export default function Landing() {
         Mission Control
       </h1>
       <p className="mt-2 max-w-prose text-ctrl-dim">
-        Supervise autonomous coding agents. Review risk-scored pull requests and
-        approve or reject from anywhere.
+        Agents open PRs at machine speed. Mission Control scores every diff —
+        green, amber, red — so you approve or reject from your phone, with a
+        confirmation gate on anything dangerous.
       </p>
 
       <ul className="mt-6 grid gap-3 sm:grid-cols-3">

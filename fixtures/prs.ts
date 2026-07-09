@@ -4,7 +4,7 @@ import type { PullRequest } from "@/lib/types";
 
 export const FIXTURE_PRS: PullRequest[] = [
   {
-    number: 101,
+    number: 900101,
     title: "Fix typo in onboarding copy",
     body: "Corrects 'recieve' → 'receive' on the welcome screen.",
     author: "cursor-agent",
@@ -21,7 +21,7 @@ export const FIXTURE_PRS: PullRequest[] = [
 +      <Text>You will receive a summary each week.</Text>`,
   },
   {
-    number: 102,
+    number: 900102,
     title: "Add SpendingTrends chart component",
     body: "New recharts-based trends component on the insights tab.",
     author: "cursor-agent",
@@ -48,7 +48,7 @@ export const FIXTURE_PRS: PullRequest[] = [
 +    "recharts": "^2.12.0",`,
   },
   {
-    number: 103,
+    number: 900103,
     title: "Clean up unused user columns",
     body: "Minor schema tidy-up.",
     author: "cursor-agent",
@@ -76,7 +76,7 @@ export const FIXTURE_PRS: PullRequest[] = [
 +  return session?.user ?? anonymousUser();`,
   },
   {
-    number: 104,
+    number: 900104,
     title: "Bump tailwind + tweak button spacing",
     body: "Dependency bump and 4px padding fix on primary buttons.",
     author: "cursor-agent",

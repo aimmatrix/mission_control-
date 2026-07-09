@@ -65,3 +65,32 @@ export interface ActionRequest {
   reasons: string[];
   action: AuditAction;
 }
+
+// ─── Problem tasks (operator-submitted, agents page) ─────────────────
+// Server-backed (Supabase problem_tasks table, in-memory fallback) so the
+// same task is visible from the Queue, the Audit trail, and the Agents
+// fleet status — not just the page it was submitted from.
+
+export type ProblemStatus = "pending" | "building" | "done" | "rejected";
+
+export const PROBLEM_BUILD_STEPS = [
+  "Queued for agent",
+  "Analyzing codebase",
+  "Writing fix",
+  "Running tests",
+] as const;
+
+export const PROBLEM_STEP_MS = 1600;
+
+export interface ProblemTask {
+  id: string;
+  text: string;
+  status: ProblemStatus;
+  step: number; // derived server-side from elapsed time since approvedAt
+  createdAt: string; // ISO
+  approvedAt: string | null; // ISO, set on approve
+}
+
+// GET   /api/problems      → { tasks: ProblemTask[] }
+// POST  /api/problems      → body: { text: string } → { task: ProblemTask } (400 on empty text)
+// PATCH /api/problems/:id  → body: { action: "approve" | "reject" } → { task: ProblemTask } (404/400)

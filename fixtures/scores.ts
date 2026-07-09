@@ -3,7 +3,7 @@
 import type { RiskScore } from "@/lib/types";
 
 export const FIXTURE_SCORES: Record<number, RiskScore> = {
-  101: {
+  900101: {
     risk_level: "low",
     score: 6,
     reasons: ["Single-line copy change in Welcome.tsx", "No logic touched"],
@@ -11,7 +11,7 @@ export const FIXTURE_SCORES: Record<number, RiskScore> = {
     requires_human: false,
     one_line_summary: "Fixes a typo in the welcome screen copy.",
   },
-  102: {
+  900102: {
     risk_level: "medium",
     score: 44,
     reasons: [
@@ -23,7 +23,7 @@ export const FIXTURE_SCORES: Record<number, RiskScore> = {
     requires_human: true,
     one_line_summary: "Adds a new spending-trends chart component and dependency.",
   },
-  103: {
+  900103: {
     risk_level: "high",
     score: 91,
     reasons: [
@@ -36,7 +36,7 @@ export const FIXTURE_SCORES: Record<number, RiskScore> = {
     requires_human: true,
     one_line_summary: "Destructive migration that also weakens RLS and auth checks.",
   },
-  104: {
+  900104: {
     risk_level: "low",
     score: 18,
     reasons: ["4px padding tweak", "Patch-level dependency bump"],

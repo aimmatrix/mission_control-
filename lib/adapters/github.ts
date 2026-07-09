@@ -108,9 +108,22 @@ export async function listOpenPRs(): Promise<PullRequest[]> {
 
         if (diffRes.status === 403 || filesRes.status === 403) {
           console.warn(
-            `[github] rate-limited fetching PR #${pull.number}; falling back to fixtures`,
+            `[github] rate-limited fetching PR #${pull.number}; keeping PR with degraded data`,
           );
-          return FIXTURE_PRS;
+          results.push({
+            number: pull.number,
+            title: pull.title,
+            body: pull.body ?? "",
+            author: pull.user?.login ?? "unknown",
+            head_sha: pull.head.sha,
+            url: pull.html_url,
+            updated_at: pull.updated_at,
+            additions: 0,
+            deletions: 0,
+            changed_files: [],
+            diff: "",
+          });
+          continue;
         }
 
         let diff = "";
@@ -170,6 +183,8 @@ export async function listOpenPRs(): Promise<PullRequest[]> {
 
 /** Merge the PR. Returns ok:false with a human-readable message on failure. */
 export async function mergePR(prNumber: number): Promise<ActionResult> {
+  if (prNumber >= 900000)
+    return { ok: true, message: `Merge simulated for demo PR #${prNumber}.` };
   if (!githubConfigured())
     return { ok: true, message: `Merge simulated for PR #${prNumber} (no GitHub token).` };
 
@@ -208,6 +223,8 @@ export async function mergePR(prNumber: number): Promise<ActionResult> {
 
 /** Close the PR without merging. */
 export async function closePR(prNumber: number): Promise<ActionResult> {
+  if (prNumber >= 900000)
+    return { ok: true, message: `Close simulated for demo PR #${prNumber}.` };
   if (!githubConfigured())
     return { ok: true, message: `Close simulated for PR #${prNumber} (no GitHub token).` };
 

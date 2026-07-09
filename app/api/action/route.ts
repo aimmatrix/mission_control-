@@ -33,7 +33,7 @@ function parseBody(raw: unknown): ActionRequest | null {
   }
 
   const score = body.score;
-  if (typeof score !== "number" || !Number.isFinite(score)) {
+  if (typeof score !== "number" || !Number.isFinite(score) || score < 0 || score > 100) {
     return null;
   }
 
@@ -78,6 +78,11 @@ async function runGitHubAction(
 }
 
 export async function POST(req: Request) {
+  const secret = process.env.MC_ACTION_SECRET;
+  if (secret && req.headers.get("x-mc-secret") !== secret) {
+    return NextResponse.json({ ok: false, message: "unauthorized" }, { status: 401 });
+  }
+
   let raw: unknown;
   try {
     raw = await req.json();

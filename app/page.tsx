@@ -1,6 +1,7 @@
 // ─── LOCKED SPINE FILE ── home shell. Mounts Landing (Agent 5) above the
 // Queue (Agent 2). Streams edit their own components, never this file.
 import Landing from "@/components/landing/Landing";
+import ProblemQueue from "@/components/queue/ProblemQueue";
 import Queue from "@/components/queue/Queue";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
         </p>
         <Queue />
       </section>
+      <ProblemQueue />
     </main>
   );
 }

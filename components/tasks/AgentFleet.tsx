@@ -4,6 +4,7 @@
 // fixed initial roster, progress advances client-side after mount only,
 // so there's no SSR/CSR hydration mismatch.
 import { useEffect, useState } from "react";
+import { PROBLEM_BUILD_STEPS, type ProblemTask } from "@/lib/types";
 
 type FleetStatus = "building" | "testing" | "done";
 
@@ -25,8 +26,18 @@ const INITIAL: FleetAgent[] = [
 
 const BUILD_STEPS = ["Analyzing", "Writing fix", "Running tests", "Opening PR"];
 
+interface DisplayItem {
+  id: string;
+  label: string;
+  task: string;
+  status: FleetStatus;
+  progress: number;
+  caption: string;
+}
+
 export default function AgentFleet() {
   const [agents, setAgents] = useState<FleetAgent[]>(INITIAL);
+  const [problemTasks, setProblemTasks] = useState<ProblemTask[]>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -48,6 +59,48 @@ export default function AgentFleet() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    async function poll() {
+      try {
+        const res = await fetch("/api/problems");
+        const data = await res.json();
+        if (!cancelled && data.tasks) {
+          setProblemTasks(
+            (data.tasks as ProblemTask[]).filter((t) => t.status === "building")
+          );
+        }
+      } catch {
+        // keep last known state on a transient failure
+      }
+    }
+    poll();
+    const interval = setInterval(poll, 2000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
+  const items: DisplayItem[] = [
+    ...problemTasks.map((t) => ({
+      id: `problem-${t.id}`,
+      label: "Your task",
+      task: t.text,
+      status: "building" as FleetStatus,
+      progress: Math.round(((t.step + 1) / PROBLEM_BUILD_STEPS.length) * 100),
+      caption: `${PROBLEM_BUILD_STEPS[t.step]}…`,
+    })),
+    ...agents.map((a) => ({
+      id: a.id,
+      label: a.label,
+      task: a.task,
+      status: a.status,
+      progress: a.progress,
+      caption: a.status === "done" ? "" : `${BUILD_STEPS[a.step]}…`,
+    })),
+  ];
+
   return (
     <div className="rounded-xl border border-ctrl-line bg-ctrl-panel p-4">
       <h3 className="mb-1 text-sm font-semibold">Other agents building right now</h3>
@@ -55,23 +108,23 @@ export default function AgentFleet() {
         Live view of everything else in flight across the fleet.
       </p>
       <ul className="space-y-3">
-        {agents.map((a) => (
-          <li key={a.id} className="rounded-lg border border-ctrl-line bg-ctrl-bg p-3">
+        {items.map((item) => (
+          <li key={item.id} className="rounded-lg border border-ctrl-line bg-ctrl-bg p-3">
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium">{a.label}</p>
-                <p className="text-xs text-ctrl-dim">{a.task}</p>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{item.label}</p>
+                <p className="break-words text-xs text-ctrl-dim">{item.task}</p>
               </div>
-              <FleetBadge status={a.status} />
+              <FleetBadge status={item.status} />
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ctrl-line">
               <div
-                className="h-full rounded-full bg-risk-low transition-all duration-700"
-                style={{ width: `${a.progress}%` }}
+                className={`h-full rounded-full transition-all duration-700 ${item.status === "done" ? "bg-risk-low" : "bg-risk-medium"}`}
+                style={{ width: `${item.progress}%` }}
               />
             </div>
-            {a.status !== "done" && (
-              <p className="mt-1 text-[11px] text-ctrl-dim">{BUILD_STEPS[a.step]}…</p>
+            {item.caption && (
+              <p className="mt-1 text-[11px] text-ctrl-dim">{item.caption}</p>
             )}
           </li>
         ))}

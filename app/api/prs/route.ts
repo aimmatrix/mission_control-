@@ -8,6 +8,7 @@ import { getCachedScore, setCachedScore } from "@/lib/db";
 import type { ScoredPR } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET() {
   try {

@@ -3,8 +3,18 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mission Control",
-  description: "Every agent supervised. The review layer for the software factory.",
+  metadataBase: new URL("https://missioncontrol-iota.vercel.app"),
+  title: "Mission Control — every agent supervised",
+  description:
+    "Risk-scores PRs from autonomous coding agents so a human can approve or reject from a phone — one tap, full audit trail.",
+  openGraph: {
+    title: "Mission Control — every agent supervised",
+    description:
+      "Agents build. Humans stay in command. Risk-scored PR review from your phone.",
+    type: "website",
+    images: ["/icon-512.png"],
+  },
+  twitter: { card: "summary", images: ["/icon-512.png"] },
 };
 
 export const viewport: Viewport = {

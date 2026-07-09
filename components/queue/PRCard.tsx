@@ -19,9 +19,9 @@ const RISK_LABEL: Record<string, string> = {
 };
 
 const RISK_ACCENT: Record<string, string> = {
-  low: "border-l-[#3fb950]",
-  medium: "border-l-[#d29922]",
-  high: "border-l-[#f85149]",
+  low: "border-l-risk-low",
+  medium: "border-l-risk-medium",
+  high: "border-l-risk-high",
 };
 
 export default function PRCard({ item, onResolved }: PRCardProps) {
@@ -50,12 +50,26 @@ export default function PRCard({ item, onResolved }: PRCardProps) {
       action,
     };
 
+    let pin = window.localStorage.getItem("mc_pin");
+    if (!pin) {
+      pin = window.prompt("Supervisor PIN");
+      if (pin) window.localStorage.setItem("mc_pin", pin);
+    }
+
     try {
       const res = await fetch("/api/action", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-mc-secret": pin ?? "" },
         body: JSON.stringify(body),
       });
+
+      if (res.status === 401) {
+        window.localStorage.removeItem("mc_pin");
+        setStatus("error");
+        setErrorMsg("Wrong supervisor PIN");
+        return;
+      }
+
       const data = (await res.json()) as ActionResult;
 
       if (!data.ok) {
@@ -78,15 +92,12 @@ export default function PRCard({ item, onResolved }: PRCardProps) {
 
   return (
     <li
-      className={`overflow-hidden transition-all duration-200 ease-out ${
-        exiting ? "max-h-0 opacity-0" : "max-h-[2000px] opacity-100"
+      className={`grid transition-all duration-300 ease-out ${
+        exiting ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr] opacity-100"
       }`}
     >
-      <article
-        className={`mc-card border-l-4 ${accent} transition-opacity ${
-          exiting ? "opacity-0" : "opacity-100"
-        }`}
-      >
+      <div className="overflow-hidden">
+      <article className={`mc-card border-l-4 ${accent}`}>
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -107,8 +118,8 @@ export default function PRCard({ item, onResolved }: PRCardProps) {
               </h3>
               <p className="mt-1 text-xs text-ctrl-dim">
                 {pr.author} ·{" "}
-                <span className="text-[#3fb950]">+{pr.additions}</span>{" "}
-                <span className="text-[#f85149]">−{pr.deletions}</span>
+                <span className="text-risk-low">+{pr.additions}</span>{" "}
+                <span className="text-risk-high">−{pr.deletions}</span>
               </p>
             </div>
           </div>
@@ -209,7 +220,7 @@ export default function PRCard({ item, onResolved }: PRCardProps) {
           )}
 
           {errorMsg && (
-            <p className="mt-3 rounded-md border border-[#da3633]/50 bg-[#da3633]/10 px-3 py-2 text-sm text-[#f85149]">
+            <p className="mt-3 rounded-md border border-risk-high/50 bg-risk-high/10 px-3 py-2 text-sm text-risk-high">
               {errorMsg}
             </p>
           )}
@@ -217,7 +228,7 @@ export default function PRCard({ item, onResolved }: PRCardProps) {
           {resolved && (
             <p
               className={`mt-3 text-sm font-medium ${
-                status === "approved" ? "text-[#3fb950]" : "text-ctrl-dim"
+                status === "approved" ? "text-risk-low" : "text-ctrl-dim"
               }`}
             >
               {status === "approved" ? "Approved" : "Rejected"}
@@ -256,6 +267,7 @@ export default function PRCard({ item, onResolved }: PRCardProps) {
           )}
         </div>
       </article>
+      </div>
     </li>
   );
 }

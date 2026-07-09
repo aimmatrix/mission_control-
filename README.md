@@ -6,6 +6,16 @@ A mobile-first web app that risk-scores pull requests from autonomous coding age
 
 ---
 
+## See it
+
+**Live demo:** https://missioncontrol-iota.vercel.app
+
+| Queue | High-risk gate | Audit trail |
+|---|---|---|
+| ![Risk-scored queue](docs/screenshots/queue.png) | ![Confirmation gate](docs/screenshots/confirm.png) | ![Audit log](docs/screenshots/audit.png) |
+
+---
+
 ## The problem
 
 Agents are getting autonomy faster than we are getting oversight.
@@ -20,8 +30,9 @@ Mission Control is that layer — green / amber / red on a phone, confirmation o
 
 1. **Fetch** open PRs from the supervised repo (`GITHUB_TARGET_REPO`).
 2. **Score** each diff with an LLM using the prompt in [`prompts/risk-scorer.md`](prompts/risk-scorer.md) — results cached in Supabase.
-3. **Review** a one-tap mobile queue: green / amber / red, with a confirmation gate on high-risk PRs.
+3. **Review** a one-tap mobile queue: green / amber / red, an inline code-review panel that highlights the exact risky lines in the diff, and a confirmation gate on high-risk PRs.
 4. **Act & audit** — approve or reject via GitHub; every action lands in a Supabase `audit_log`, visible on `/audit`.
+5. **Watch the fleet** — the /agents page shows per-agent build-activity heatmaps, fleet status, and a report-a-problem flow that sends a fix prompt back to the agent.
 
 ---
 
@@ -75,7 +86,7 @@ Nine Cursor cloud agents + a Claude risk-scoring stream ran in parallel under a 
 
 ### Environment variables
 
-Names only — values live in Vercel / your local `.env` (never commit secrets):
+Names only — values live in Vercel / your local `.env` (never commit secrets; all optional — see Zero config below):
 
 | Variable | Purpose |
 |---|---|
@@ -85,6 +96,7 @@ Names only — values live in Vercel / your local `.env` (never commit secrets):
 | `SUPABASE_ANON_KEY` | Supabase anon/public key |
 | `SUPABASE_SERVICE_KEY` | Supabase service role key (server-side) |
 | `LLM_API_KEY` | Anthropic or Grok API key for risk scoring |
+| `MC_ACTION_SECRET` | Supervisor PIN required in `x-mc-secret` header for POST /api/action (unset = open, for local/fixture dev) |
 
 ### Database
 
@@ -95,6 +107,8 @@ Run [`supabase/schema.sql`](supabase/schema.sql) once in the Supabase SQL editor
 ```bash
 npm i && npm run dev
 ```
+
+**Zero config required** — with no env vars set, Mission Control boots against built-in demo fixtures (realistic green/amber/red PRs) so the full queue → review → decide flow works out of the box. Add the env vars above to point it at a live repo, real LLM scoring, and the Supabase audit trail.
 
 Open [http://localhost:3000](http://localhost:3000). Demo-day runbook: [`docs/demo-script.md`](docs/demo-script.md).
 
@@ -107,6 +121,6 @@ Open [http://localhost:3000](http://localhost:3000). Demo-day runbook: [`docs/de
 | **Autonomy** | Agents open and land PRs at machine speed; the human only intervenes at the decision boundary. |
 | **Safety & oversight** | LLM risk scores, color-coded queue, confirmation gate on high risk, immutable audit trail. |
 | **Technical execution** | Next.js 14 · Vercel · GitHub REST · LLM scorer · Supabase cache + audit — end-to-end live path. |
-| **UX clarity** | Mobile-first control room: risk color as the primary language, big touch targets, one-tap approve/reject. |
+| **UX clarity** | Mobile-first control room: risk color as the primary language, big touch targets, one-tap approve/reject; inline risky-line highlights; per-agent fleet view. |
 | **Real-world applicability** | Any team running coding agents against a real repo needs a phone-reachable review layer before merge. |
 | **Best use of Cursor** | Built *by* Cursor cloud agents in parallel under a locked spine — the product supervises the same class of agent that shipped it. |
