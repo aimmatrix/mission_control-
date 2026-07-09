@@ -5,8 +5,173 @@
 
 :root {
   color-scheme: dark;
+  --ctrl-bg: #0a0f14;
+  --ctrl-panel: #111823;
+  --ctrl-line: #1f2a36;
+  --ctrl-fg: #e6edf3;
+  --ctrl-dim: #8b98a5;
+  --risk-low: #34d399;
+}
+
+/* ── Base: no white flash, no horizontal bleed at phone widths ── */
+html {
+  background-color: var(--ctrl-bg);
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
   -webkit-tap-highlight-color: transparent;
+  background-color: var(--ctrl-bg);
+  color: var(--ctrl-fg);
+  font-size: 1rem;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  overflow-x: hidden;
+  max-width: 100%;
+  /* Safe-area insets for notched phones */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Faint control-room glow — static gradient only (no attachment/animation) */
+  background-image: radial-gradient(
+    ellipse 120% 70% at 50% -10%,
+    rgba(52, 211, 153, 0.07) 0%,
+    transparent 55%
+  );
+  background-repeat: no-repeat;
+}
+
+/* Sticky header clears the notch without editing layout.tsx */
+body > header {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* ── Typography rhythm ── */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* Smooth scroll target for Queue nav (#queue) */
+#queue {
+  scroll-margin-top: calc(4.5rem + env(safe-area-inset-top, 0px));
+}
+
+/* ── Focus rings — risk-green accent ── */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--risk-low);
+  outline-offset: 2px;
+}
+
+/* ── Thin custom scrollbar ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ctrl-line) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--ctrl-line);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ctrl-dim);
+}
+
+/* ── Safe-area utility classes (for other streams) ── */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.safe-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.safe-y {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-inset {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+/* Offset sticky headers below the notch */
+.safe-header-offset {
+  top: env(safe-area-inset-top, 0px);
+}
+
+/* ── Live indicator pulse (adopt via .pulse-dot) ── */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.82);
+  }
+}
+
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot {
+    animation: none;
+    will-change: auto;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
 }
