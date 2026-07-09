@@ -17,15 +17,28 @@ const STEPS = ["Queued for agent", "Analyzing codebase", "Writing fix", "Running
 const STORAGE_KEY = "mc_tasks_v1";
 const STEP_MS = 1600;
 
+function cursorPrompt(problem: string): string {
+  return `Fix this issue in the Mission Control repo (aimmatrix/mission_control-): ${problem}`;
+}
+
 function cursorDeepLink(problem: string): string {
-  const prompt = `Fix this issue in the Mission Control repo (aimmatrix/mission_control-): ${problem}`;
-  return `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(prompt)}`;
+  return `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(cursorPrompt(problem))}`;
 }
 
 export default function ProblemTracker() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [draft, setDraft] = useState("");
   const [hydrated, setHydrated] = useState(false);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  function toggleExpanded(id: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   useEffect(() => {
     try {
@@ -104,7 +117,7 @@ export default function ProblemTracker() {
               </div>
 
               {task.status === "pending" && (
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => approve(task.id)}
                     className="rounded-md bg-risk-low px-3 py-1.5 text-xs font-medium text-ctrl-bg"
@@ -117,12 +130,29 @@ export default function ProblemTracker() {
                   >
                     Reject
                   </button>
+                  <button
+                    onClick={() => toggleExpanded(task.id)}
+                    className="rounded-md border border-ctrl-line px-3 py-1.5 text-xs text-ctrl-dim hover:text-ctrl-fg"
+                  >
+                    {expanded.has(task.id) ? "Hide detail" : "More detail"}
+                  </button>
                   <a
                     href={cursorDeepLink(task.text)}
                     className="ml-auto rounded-md border border-ctrl-line px-3 py-1.5 text-xs text-ctrl-dim hover:text-ctrl-fg"
                   >
                     Open in Cursor ↗
                   </a>
+                </div>
+              )}
+
+              {task.status === "pending" && expanded.has(task.id) && (
+                <div className="mt-3">
+                  <p className="mb-1 text-[10px] uppercase tracking-wide text-ctrl-dim">
+                    Prompt sent to Cursor
+                  </p>
+                  <pre className="whitespace-pre-wrap rounded-lg border border-ctrl-line bg-ctrl-panel p-3 font-mono text-xs text-ctrl-fg">
+                    {cursorPrompt(task.text)}
+                  </pre>
                 </div>
               )}
 
