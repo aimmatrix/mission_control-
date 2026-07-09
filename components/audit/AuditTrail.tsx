@@ -42,7 +42,7 @@ export default function AuditTrail() {
 
   if (error && !entries) {
     return (
-      <p className="rounded-lg border border-risk-high/40 bg-risk-high/10 px-4 py-3 text-sm text-risk-high">
+      <p className="rounded-md border border-[#da3633]/50 bg-[#da3633]/10 px-4 py-3 text-sm text-[#f85149]">
         {error}
       </p>
     );
@@ -50,24 +50,22 @@ export default function AuditTrail() {
 
   if (entries === null) {
     return (
-      <div className="flex items-center gap-3 py-8 text-ctrl-dim" role="status">
+      <div className="flex items-center gap-2 py-8 text-ctrl-dim" role="status">
         <span
-          className="inline-block h-2 w-2 animate-pulse rounded-full bg-risk-low"
+          className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-ctrl-line border-t-ctrl-dim"
           aria-hidden
         />
-        <span className="text-sm">Replaying flight recorder…</span>
+        <span className="text-sm">Loading audit log…</span>
       </div>
     );
   }
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-ctrl-line bg-ctrl-panel/60 px-4 py-10 text-center">
-        <p className="text-sm text-ctrl-dim">
-          No autonomous actions yet — the queue is waiting.
-        </p>
-        <p className="mt-2 font-mono text-[11px] uppercase tracking-wider text-ctrl-dim/60">
-          recorder armed
+      <div className="mc-card px-4 py-10 text-center">
+        <p className="text-sm text-ctrl-dim">No audit entries yet.</p>
+        <p className="mt-1 text-xs text-ctrl-dim">
+          Actions from the review queue will appear here.
         </p>
       </div>
     );
@@ -75,21 +73,12 @@ export default function AuditTrail() {
 
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="font-mono text-[11px] uppercase tracking-wider text-ctrl-dim">
-          {entries.length === 1 ? "1 event logged" : `${entries.length} events logged`}
-        </p>
-        <p className="flex items-center gap-1.5 font-mono text-[11px] text-ctrl-dim">
-          <span
-            className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-risk-low"
-            aria-hidden
-          />
-          live
-        </p>
-      </div>
+      <p className="mb-3 text-xs text-ctrl-dim">
+        {entries.length === 1 ? "1 entry" : `${entries.length} entries`} · refreshes
+        every 5s
+      </p>
 
-      {/* Timeline spine */}
-      <ul className="relative space-y-3 before:absolute before:bottom-3 before:left-[4px] before:top-3 before:w-px before:bg-ctrl-line">
+      <ul className="divide-y divide-ctrl-line rounded-md border border-ctrl-line bg-ctrl-panel">
         {entries.map((entry) => (
           <AuditRow key={entry.id} entry={entry} now={now} />
         ))}

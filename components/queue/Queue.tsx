@@ -31,7 +31,7 @@ export default function Queue() {
 
   if (error) {
     return (
-      <p className="rounded-lg border border-risk-high/40 bg-risk-high/10 px-4 py-3 text-sm text-risk-high">
+      <p className="rounded-md border border-[#da3633]/50 bg-[#da3633]/10 px-4 py-3 text-sm text-[#f85149]">
         {error}
       </p>
     );
@@ -39,21 +39,21 @@ export default function Queue() {
 
   if (!prs) {
     return (
-      <div className="flex items-center gap-3 py-8 text-ctrl-dim" role="status">
+      <div className="flex items-center gap-2 py-8 text-ctrl-dim" role="status">
         <span
-          className="inline-block h-2 w-2 animate-pulse rounded-full bg-risk-low"
+          className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-ctrl-line border-t-ctrl-dim"
           aria-hidden
         />
-        <span className="text-sm">Scanning open PRs…</span>
+        <span className="text-sm">Loading pull requests…</span>
       </div>
     );
   }
 
   if (prs.length === 0) {
     return (
-      <p className="rounded-lg border border-ctrl-line bg-ctrl-panel px-4 py-6 text-center text-sm text-ctrl-dim">
-        Queue clear — every agent supervised.
-      </p>
+      <div className="mc-card px-4 py-8 text-center">
+        <p className="text-sm text-ctrl-dim">No open pull requests in the queue.</p>
+      </div>
     );
   }
 

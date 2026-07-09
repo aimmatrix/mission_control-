@@ -26,6 +26,7 @@ export default function RootLayout({
             </a>
             <nav className="flex gap-4 text-sm text-ctrl-dim">
               <a href="/#queue" className="hover:text-ctrl-fg">Queue</a>
+              <a href="/agents" className="hover:text-ctrl-fg">Agents</a>
               <a href="/audit" className="hover:text-ctrl-fg">Audit</a>
             </nav>
           </div>
