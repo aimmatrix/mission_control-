@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ActionRequest, ActionResult, AuditAction, ScoredPR } from "@/lib/types";
+import DiffViewer from "./DiffViewer";
 import RiskGate from "./RiskGate";
 
 type CardStatus = "idle" | "pending" | "approved" | "rejected" | "error";
@@ -26,6 +27,7 @@ const RISK_ACCENT: Record<string, string> = {
 export default function PRCard({ item, onResolved }: PRCardProps) {
   const { pr, score, cached } = item;
   const [expanded, setExpanded] = useState(score.risk_level === "high");
+  const [showDiff, setShowDiff] = useState(score.risk_level === "high");
   const [status, setStatus] = useState<CardStatus>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [exiting, setExiting] = useState(false);
@@ -114,6 +116,27 @@ export default function PRCard({ item, onResolved }: PRCardProps) {
           <p className="mt-3 text-sm leading-relaxed text-ctrl-dim">
             {score.one_line_summary}
           </p>
+
+          {pr.diff && (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => setShowDiff((v) => !v)}
+                className="mc-btn-secondary w-full justify-between"
+                aria-expanded={showDiff}
+              >
+                <span>{showDiff ? "Hide code review" : "Review code"}</span>
+                <span className="text-ctrl-dim" aria-hidden>
+                  {showDiff ? "▴" : "▾"}
+                </span>
+              </button>
+              {showDiff && (
+                <div className="mt-2">
+                  <DiffViewer diff={pr.diff} />
+                </div>
+              )}
+            </div>
+          )}
 
           {score.risk_level === "medium" && (
             <button
