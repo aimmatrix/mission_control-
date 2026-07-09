@@ -1,3 +1,12 @@
+/* OWNED BY AGENT 8 (theme & mobile polish). Base committed by the spine. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+}
