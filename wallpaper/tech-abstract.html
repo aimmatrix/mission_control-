@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tech Abstract Wallpaper</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #04070f; overflow: hidden; cursor: none; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// Abstract tech wallpaper: glowing circuit traces, data pulses, a drifting node network.
+// Press "S" to toggle animation (static frame), "F" for fullscreen.
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+let W, H, DPR, traces, nodes, pulses, running = true;
+const PALETTE = ['#22d3ee', '#818cf8', '#c084fc', '#34d399'];
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W * DPR; cv.height = H * DPR;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  build();
+  if (!running) draw(0);
+}
+
+// Circuit traces: random walks on a grid, moving in 45/90 degree steps.
+function build() {
+  const g = 40;
+  traces = [];
+  const count = Math.round((W * H) / 24000);
+  for (let i = 0; i < count; i++) {
+    let x = Math.round(rnd(0, W) / g) * g, y = Math.round(rnd(0, H) / g) * g;
+    let dir = Math.floor(rnd(0, 8));
+    const pts = [[x, y]];
+    const steps = Math.floor(rnd(4, 12));
+    for (let s = 0; s < steps; s++) {
+      if (Math.random() < 0.6) dir = (dir + pick([-1, 1]) + 8) % 8;
+      const a = dir * Math.PI / 4, len = g * Math.floor(rnd(1, 5));
+      x += Math.round(Math.cos(a)) * len; y += Math.round(Math.sin(a)) * len;
+      pts.push([x, y]);
+    }
+    let total = 0; const seg = [];
+    for (let k = 1; k < pts.length; k++) {
+      const l = Math.hypot(pts[k][0] - pts[k-1][0], pts[k][1] - pts[k-1][1]);
+      seg.push(l); total += l;
+    }
+    traces.push({ pts, seg, total, color: pick(PALETTE), alpha: rnd(0.12, 0.35) });
+  }
+  pulses = traces.map(t => ({ t, pos: rnd(0, t.total), speed: rnd(40, 140) }));
+  nodes = Array.from({ length: Math.round(W * H / 28000) }, () => ({
+    x: rnd(0, W), y: rnd(0, H), vx: rnd(-.12, .12), vy: rnd(-.12, .12),
+    r: rnd(1.5, 3.5), c: pick(PALETTE)
+  }));
+}
+
+function pointAt(t, d) {
+  for (let i = 0; i < t.seg.length; i++) {
+    if (d <= t.seg[i]) {
+      const f = d / t.seg[i], a = t.pts[i], b = t.pts[i+1];
+      return [a[0] + (b[0]-a[0]) * f, a[1] + (b[1]-a[1]) * f];
+    }
+    d -= t.seg[i];
+  }
+  return t.pts[t.pts.length - 1];
+}
+
+function background(time) {
+  ctx.fillStyle = '#04070f';
+  ctx.fillRect(0, 0, W, H);
+  const glows = [
+    [W * .2, H * .25, W * .55, 'rgba(99,102,241,.22)'],
+    [W * .85, H * .7, W * .6, 'rgba(34,211,238,.16)'],
+    [W * .5, H * 1.0, W * .5, 'rgba(192,132,252,.14)'],
+  ];
+  glows.forEach(([x, y, r, c], i) => {
+    const o = Math.sin(time / 6000 + i * 2) * 40;
+    const g = ctx.createRadialGradient(x + o, y, 0, x + o, y, r);
+    g.addColorStop(0, c); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  });
+  // faint grid
+  ctx.strokeStyle = 'rgba(148,163,184,.045)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = 0; x < W; x += 40) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+  for (let y = 0; y < H; y += 40) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+  ctx.stroke();
+}
+
+let last = 0;
+function draw(time) {
+  const dt = Math.min((time - last) / 1000, .05) || 0; last = time;
+  background(time);
+
+  // traces
+  ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+  for (const t of traces) {
+    ctx.strokeStyle = t.color; ctx.globalAlpha = t.alpha;
+    ctx.beginPath();
+    t.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+    ctx.stroke();
+    ctx.globalAlpha = Math.min(1, t.alpha * 3);
+    ctx.fillStyle = t.color;
+    for (const p of [t.pts[0], t.pts[t.pts.length - 1]]) {
+      ctx.beginPath(); ctx.arc(p[0], p[1], 3.5, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.arc(p[0], p[1], 1.4, 0, 7); ctx.fill();
+    }
+  }
+
+  // data pulses travelling along traces
+  ctx.globalCompositeOperation = 'lighter';
+  for (const p of pulses) {
+    p.pos = (p.pos + p.speed * dt) % p.t.total;
+    for (let k = 0; k < 14; k++) {
+      const [x, y] = pointAt(p.t, ((p.pos - k * 4) % p.t.total + p.t.total) % p.t.total);
+      ctx.globalAlpha = (1 - k / 14) * .8;
+      ctx.fillStyle = p.t.color;
+      ctx.beginPath(); ctx.arc(x, y, 3 - k * .15, 0, 7); ctx.fill();
+    }
+  }
+
+  // drifting node network
+  for (const n of nodes) {
+    n.x += n.vx; n.y += n.vy;
+    if (n.x < 0 || n.x > W) n.vx *= -1;
+    if (n.y < 0 || n.y > H) n.vy *= -1;
+  }
+  ctx.lineWidth = 1;
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const a = nodes[i], b = nodes[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < 180) {
+        ctx.globalAlpha = (1 - d / 180) * .25; ctx.strokeStyle = a.c;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
+    }
+  }
+  for (const n of nodes) {
+    const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 6);
+    g.addColorStop(0, n.c); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = .55; ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(n.x, n.y, n.r * 6, 0, 7); ctx.fill();
+    ctx.globalAlpha = 1; ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(n.x, n.y, n.r * .6, 0, 7); ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+
+  // vignette
+  const v = ctx.createRadialGradient(W/2, H/2, Math.min(W, H) * .4, W/2, H/2, Math.max(W, H) * .75);
+  v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.55)');
+  ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+
+  if (running) requestAnimationFrame(draw);
+}
+
+addEventListener('resize', resize);
+addEventListener('keydown', e => {
+  if (e.key === 's' || e.key === 'S') { running = !running; if (running) requestAnimationFrame(draw); }
+  if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+});
+resize();
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
